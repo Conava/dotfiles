@@ -1,0 +1,5 @@
+[user]
+	name = Marlon Kranz
+	email = dev@marlonkranz.com
+[core]
+	autocrlf = input
