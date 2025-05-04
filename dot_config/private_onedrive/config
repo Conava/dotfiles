@@ -1,0 +1,2 @@
+sync_root_files = "true"
+disable_download_validation = "true"
