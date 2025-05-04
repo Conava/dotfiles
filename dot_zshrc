@@ -1,0 +1,133 @@
+# Path to Oh My Zsh install
+export ZSH="$HOME/.oh-my-zsh"
+
+#— Core settings
+DISABLE_MAGIC_FUNCTIONS="true"    # helps when pasting weird text
+ENABLE_CORRECTION="true"         # typo autocorrect
+COMPLETION_WAITING_DOTS="true"    # nice little dots while compinit
+
+#— History (shared, instant, huge)
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt INC_APPEND_HISTORY       # write immediately
+setopt SHARE_HISTORY            # share across all shells
+setopt HIST_IGNORE_SPACE        # leading-space cmds not saved
+setopt HIST_IGNORE_ALL_DUPS     # no duplicate entries
+
+# treat `foo` like `./foo` if executable
+setopt NO_CLOBBER
+
+# type a dir name + Enter → cd into it
+setopt AUTO_CD
+
+# interactive completion menu
+zstyle ':completion:*' menu select
+
+#— Editor
+export EDITOR="code --wait"
+
+# Extract virtually anything by filename
+extract() {
+  if [[ -f $1 ]]; then
+    case $1 in
+      *.tar.bz2) tar xjf $1 ;;
+      *.tar.gz)  tar xzf $1 ;;
+      *.bz2)     bunzip2 $1 ;;
+      *.rar)     unrar x $1 ;;
+      *.zip)     unzip $1 ;;
+      *.7z)      7z x $1 ;;
+      *)         echo "❓ don't know how to extract '$1'" ;;
+    esac
+  else
+    echo "❗ '$1' is not a valid file"
+  fi
+}
+
+# fuzzy-find directory (requires fzf)
+fcd() {
+  local dir
+  dir=$(find ${1:-.} -path '*/\.*' -prune \
+    -o -type d -print 2> /dev/null | fzf +m) && cd "$dir"
+}
+
+# Ctrl-R for fzf history (if you’ve got fzf key-bindings loaded)
+# source /usr/share/fzf/key-bindings.zsh  # usually provided by fzf pkg
+
+
+#— Prompt (Oh My Posh)
+eval "$(oh-my-posh init zsh --config ~/.themes/shell/atomic_custom.omp.json)"
+
+#— Plugins
+plugins=(
+  git
+  fzf
+  extract
+  zsh-completions
+  fzf-tab
+  autojump
+  history-substring-search
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+source $ZSH/oh-my-zsh.sh
+
+#— Initialize completion system
+autoload -Uz compinit
+compinit
+
+#— Arrow-key “search as you type” history
+bindkey "${terminfo[kcuu1]}" history-substring-search-up
+bindkey "${terminfo[kcud1]}" history-substring-search-down
+
+#— LESS colors for man pages
+export LESS_TERMCAP_md="$(tput bold; tput setaf 2)"
+export LESS_TERMCAP_me="$(tput sgr0)"
+
+#— Aliases & shortcuts
+alias make="make -j$(nproc)"
+alias ninja="ninja -j$(nproc)"
+alias n="ninja"
+alias c="clear"
+
+alias rmpkg="sudo pacman -Rsn"
+alias cleanch="sudo pacman -Scc"
+alias fixpacman="sudo rm /var/lib/pacman/db.lck"
+alias update="sudo pacman -Syu"
+
+alias apt="man pacman"
+alias apt-get="man pacman"
+alias please="sudo"
+alias tb="nc termbin.com 9999"
+alias cleanup="sudo pacman -Rsn \$(pacman -Qtdq)"
+alias jctl="journalctl -p 3 -xb"
+alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
+
+# ─── Directory Navigation ───────────────────────────────────────────────────
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias -- -='cd -'               # jump to previous dir
+alias mkcd='() { mkdir -p "$1" && cd "$1"; }'
+
+# ─── Listing & Disk ────────────────────────────────────────────────────────
+alias ls='exa --icons --group-directories-first'
+alias la='ls -alh'              # all, human-readable
+alias ll='ls -lh'               # long, human-readable
+alias du='ncdu'                 # install via `sudo pacman -S ncdu`
+
+# ─── Safer File Ops ────────────────────────────────────────────────────────
+alias cp='cp -iv'               # interactive, verbose
+alias mv='mv -iv'
+alias rm='rm -iv'
+
+
+#— pkgfile “command not found” helper
+source /usr/share/doc/pkgfile/command-not-found.zsh
+
+#— fzf base (so plugins can find it)
+export FZF_BASE=/usr/share/fzf
+
+#— Autojump (quick cd shortcuts)
+[ -s /usr/share/autojump/autojump.zsh ] && . /usr/share/autojump/autojump.zsh
