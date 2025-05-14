@@ -1,5 +1,12 @@
-# Path to Oh My Zsh install
-export ZSH="$HOME/.oh-my-zsh"
+# — Detect Oh My Zsh install location —
+if   [[ -d "$HOME/.oh-my-zsh" ]]; then
+  export ZSH="$HOME/.oh-my-zsh"
+elif [[ -d "/usr/share/oh-my-zsh" ]]; then
+  export ZSH="/usr/share/oh-my-zsh"
+else
+  echo "❗ Error: Oh My Zsh not found in ~/.oh-my-zsh or /usr/share/oh-my-zsh" >&2
+  return
+fi
 
 #— Core settings
 DISABLE_MAGIC_FUNCTIONS="true"    # helps when pasting weird text
