@@ -122,10 +122,6 @@ alias cp='cp -iv'               # interactive, verbose
 alias mv='mv -iv'
 alias rm='rm -iv'
 
-
-#— pkgfile “command not found” helper
-source /usr/share/doc/pkgfile/command-not-found.zsh
-
 #— fzf base (so plugins can find it)
 export FZF_BASE=/usr/share/fzf
 
